@@ -1,0 +1,78 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.swp
+*.swo
+
+# Django
+*.log
+*.pot
+*.pyc
+
+# Virtual Environment
+env/
+venv/
+ENV/
+VENV/
+.virtualenv/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Static files
+
+# Local settings
+local_settings.py
+
+# Test result files
+.coverage
+*.cover
+*.py,cover
+.hypothesis/
+.tox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.coveragerc
+test-results/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Pyre type checker
+.pyre/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pylint
+pylint-report.txt
+pylint-output.json

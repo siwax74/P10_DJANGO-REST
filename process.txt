@@ -1,0 +1,108 @@
+mkdir myprojects
+cd myprojects
+python -m venv env
+env\scripts\activate
+pip install djangorestframework
+pip install djangorestframework-simplejwt
+pip install django
+
+django-admin startproject backend
+django-admin startapp api
+django-admin startapp api_auth
+pip freeze > requirements.txt
+
+Ajout des urls dans :
+# backend/urls.py
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('api.urls')), # exemple : http://127.0.0.1:8000/api/
+    path('api_auth/', include('api_auth.urls')), # exemple : http://127.0.0.1:8000/api_auth/
+]
+
+Création de fichier urls.py dans :
+# api/urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
+app_name = "api"
+router = DefaultRouter()
+urlpatterns = router.urls  # Inclure toutes les routes générées par le router
+
+# api_auth/urls.py
+app_name = "api_auth"
+router = DefaultRouter()
+router.register(r'users', views.CustomerViewSet) <------ Exemple de viewSet
+urlpatterns = [
+    path('', include('rest_framework.urls')),
+] + router.urls
+
+## settings.py ##
+
+Ajouter l'application :
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework', <-----
+    'api', <-----
+    'api_auth' <-------
+]
+
+Ajouter
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+## api_auth ##
+- Crée un dossier models
+- Crée un fichier user.py dans :
+    # api_auth/models/user.py
+    class Customer(AbstractUser):
+
+        username = models.CharField(max_length=10, unique=True)
+        email = models.EmailField(max_length=254, unique=True, null=True, blank=True)
+        is_staff = models.BooleanField(default=False)
+        is_superuser = models.BooleanField(default=False)
+        is_active = models.BooleanField(default=True)
+        USERNAME_FIELD = "username"
+        REQUIRED_FIELDS = []
+
+        objects = CustomUserManager()
+
+        def __str__(self):
+            """
+            Returns a string representation of the Customer instance.
+            """
+            return self.username
+
+Crée un fichier user_manager.py dans :
+    # api_auth/models/user_manager.py
+    class CustomUserManager(BaseUserManager):
+        def create_user(self, username, password=None, **kwargs):
+            if not username:
+                raise ValueError("Le nom d'utilisateur est obligatoire.")
+            username = self.model.normalize_username(username)
+            user = self.model(username=username, **kwargs)
+            if password:
+                user.set_password(password)
+            user.save()
+            return user
+
+        def create_superuser(self, username, password=None, **kwargs):
+            kwargs["is_staff"] = True
+            kwargs["is_superuser"] = True
+            kwargs["is_active"] = True
+            return self.create_user(username=username, password=password, **kwargs)
+
+    python manage.py makemigration
+    python manage.py migrate
+
+    Vous pouvez dès a présent
