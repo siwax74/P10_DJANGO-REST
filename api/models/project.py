@@ -2,7 +2,8 @@ from django.db import models
 from backend.settings import AUTH_USER_MODEL
 
 # Types de projet possibles
-TYPES = [('BACKEND', 'BACKEND'), ('FRONTEND', 'FRONTEND'), ('IOS', 'IOS'), ('ANDROID', 'ANDROID')]
+TYPES = [("BACK-END", "BACK-END"), ("FRONT-END", "FRONT-END"), ("IOS", "IOS"), ("ANDROID", "ANDROID")]
+
 
 class Project(models.Model):
     """Classe représentant un projet"""
@@ -11,8 +12,9 @@ class Project(models.Model):
     title = models.CharField(max_length=155)
     description = models.CharField(max_length=2048)
     type_development = models.CharField(choices=TYPES, max_length=12)
+
     # Relation avec l'auteur du projet (un utilisateur)
-    author = models.ForeignKey(to=AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='author')
+    author = models.ForeignKey(to=AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="author")
 
     def __str__(self):
         return self.title

@@ -1,0 +1,3 @@
+[flake8]
+exclude = env, migrations, static, node_modules, build, __init__.py
+max-line-length = 119

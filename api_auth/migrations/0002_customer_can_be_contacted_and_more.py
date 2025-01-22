@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api_auth', '0001_initial'),
+        ("api_auth", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customer',
-            name='can_be_contacted',
+            model_name="customer",
+            name="can_be_contacted",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='customer',
-            name='can_data_be_shared',
+            model_name="customer",
+            name="can_data_be_shared",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='customer',
-            name='date_of_birth',
+            model_name="customer",
+            name="date_of_birth",
             field=models.DateField(blank=True, null=True),
         ),
     ]

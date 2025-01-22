@@ -2,16 +2,17 @@ from rest_framework import serializers
 from datetime import date
 from api_auth.models.user import Customer
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.serializers import ModelSerializer, ValidationError, SerializerMethodField
+from rest_framework.serializers import SerializerMethodField
+
 
 class SignupSerializer(serializers.ModelSerializer):
 
-    tokens = SerializerMethodField()
+    tokens = SerializerMethodField()  # --> click droit "atteindre les définitions"
 
     class Meta:
         model = Customer
-        fields = ['username', 'password', 'date_of_birth', 'can_be_contacted', 'can_data_be_shared', 'tokens']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ["username", "password", "date_of_birth", "can_be_contacted", "can_data_be_shared", "tokens"]
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate_date_of_birth(self, value):
         today = date.today()
@@ -23,11 +24,11 @@ class SignupSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Crée un utilisateur
         user = Customer.objects.create_user(
-            username=validated_data['username'],
-            password=validated_data['password'],
-            date_of_birth=validated_data['date_of_birth'],
-            can_be_contacted=validated_data['can_be_contacted'],
-            can_data_be_shared=validated_data['can_data_be_shared'],
+            username=validated_data["username"],
+            password=validated_data["password"],
+            date_of_birth=validated_data["date_of_birth"],
+            can_be_contacted=validated_data["can_be_contacted"],
+            can_data_be_shared=validated_data["can_data_be_shared"],
         )
         self.user = user
         return user
@@ -39,7 +40,7 @@ class SignupSerializer(serializers.ModelSerializer):
         tokens = RefreshToken.for_user(user)
         data = {
             "refresh": str(tokens),  # Convertir le jeton d'actualisation en chaîne
-            "access": str(tokens.access_token)  # Convertir le jeton d'accès en chaîne
+            "access": str(tokens.access_token),  # Convertir le jeton d'accès en chaîne
         }
         # Retourner le dictionnaire contenant les jetons
         return data

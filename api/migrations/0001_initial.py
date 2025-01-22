@@ -15,25 +15,53 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Project',
+            name="Project",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=155)),
-                ('description', models.CharField(max_length=2048)),
-                ('type_development', models.CharField(choices=[('BACKEND', 'BACKEND'), ('FRONTEND', 'FRONTEND'), ('IOS', 'IOS'), ('ANDROID', 'ANDROID')], max_length=12)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='author', to=settings.AUTH_USER_MODEL)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("title", models.CharField(max_length=155)),
+                ("description", models.CharField(max_length=2048)),
+                (
+                    "type_development",
+                    models.CharField(
+                        choices=[
+                            ("BACKEND", "BACKEND"),
+                            ("FRONTEND", "FRONTEND"),
+                            ("IOS", "IOS"),
+                            ("ANDROID", "ANDROID"),
+                        ],
+                        max_length=12,
+                    ),
+                ),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="author", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Contributor',
+            name="Contributor",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(choices=[('AUTHOR', 'AUTHOR'), ('CONTRIBUTOR', 'CONTRIBUTOR')], default='CONTRIBUTOR', max_length=11)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='contributors', to='api.project')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[("AUTHOR", "AUTHOR"), ("CONTRIBUTOR", "CONTRIBUTOR")],
+                        default="CONTRIBUTOR",
+                        max_length=11,
+                    ),
+                ),
+                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="contributors", to="api.project"
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('project_id', 'user_id')},
+                "unique_together": {("project_id", "user_id")},
             },
         ),
     ]
