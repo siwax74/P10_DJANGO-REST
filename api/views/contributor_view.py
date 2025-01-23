@@ -23,7 +23,7 @@ class UserContributorsViewset(ModelViewSet):
 
     def get_queryset(self):
         cont_usr_ids = [
-            contributor.user_id.id for contributor in Contributor.objects.filter(project_id=self.kwargs["projects_pk"])
+            contributor.user_id for contributor in Contributor.objects.filter(project_id=self.kwargs["projects_pk"])
         ]
         return Customer.objects.filter(id__in=cont_usr_ids)
 
@@ -60,16 +60,27 @@ class UserContributorsViewset(ModelViewSet):
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
-        user_to_delete = Customer.objects.filter(id=self.kwargs["pk"]).first()
+        # Récupérer l'ID du projet et de l'utilisateur depuis les paramètres d'URL
+        project_id = self.kwargs["projects_pk"]
+        user_id = self.kwargs["pk"]
+
+        # Vérifier si l'utilisateur à supprimer est l'utilisateur connecté
+        user_to_delete = Customer.objects.filter(id=user_id).first()
         if user_to_delete == request.user:
-            return Response(data={"error": "You cannot delete yourself !"})
+            return Response(data={"error": "You cannot delete yourself!"}, status=status.HTTP_403_FORBIDDEN)
+
         if user_to_delete:
-            contributor = Contributor.objects.filter(
-                user_id=self.kwargs["pk"], project_id=self.kwargs["projects_pk"]
-            ).first()
+            # Vérifier si l'utilisateur est bien un contributeur dans ce projet
+            contributor = Contributor.objects.filter(user_id=user_id, project_id=project_id).first()
+
             if contributor:
                 contributor.delete()
-                return Response()
-            return Response(data={"error": "Contributor not assigned to project !"})
+                return Response(
+                    data={"success": "Contributor delete to this project!"}, status=status.HTTP_204_NO_CONTENT
+                )
+            else:
+                return Response(
+                    data={"error": "Contributor not assigned to this project!"}, status=status.HTTP_404_NOT_FOUND
+                )
         else:
-            return Response(data={"error": "User does not exist !"})
+            return Response(data={"error": "User does not exist!"}, status=status.HTTP_404_NOT_FOUND)
