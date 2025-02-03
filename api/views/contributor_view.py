@@ -25,62 +25,31 @@ class UserContributorsViewset(ModelViewSet):
         cont_usr_ids = [
             contributor.user_id for contributor in Contributor.objects.filter(project_id=self.kwargs["projects_pk"])
         ]
-        return Customer.objects.filter(id__in=cont_usr_ids)
+        customer = Customer.objects.filter(id__in=cont_usr_ids)
+        return customer
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        try:
-            user_to_add = Customer.objects.filter(username=request.data["username"]).first()
-            if user_to_add:
-                project = Project.objects.filter(id=self.kwargs["projects_pk"]).first()
-                if project:
-                    # Vérifier si le contributeur existe déjà pour ce projet
-                    existing_contributor = Contributor.objects.filter(
-                        user_id=user_to_add.id, project_id=project.id
-                    ).first()
-                    if existing_contributor:
-                        return Response(
-                            data={"error": "User is already a contributor for this project!"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-
-                    # Créer un nouveau contributeur
-                    contributor = Contributor.objects.create(
-                        user_id=user_to_add.id,  # Utilisez l'ID de l'utilisateur
-                        project_id=project.id,  # Utilisez l'ID du projet
-                    )
-                    contributor.save()
-                    return Response(data={"Success": "Contributor added to project!"}, status=status.HTTP_201_CREATED)
-                return Response(data={"error": "Project does not exist!"}, status=status.HTTP_404_NOT_FOUND)
-            return Response(data={"error": "User does not exist!"}, status=status.HTTP_404_NOT_FOUND)
-        except IntegrityError:
+        # Récupérer le projet et l'utilisateur à partir des données envoyées
+        project = Project.objects.filter(id=self.kwargs["projects_pk"]).first()
+        user = Customer.objects.filter(username=request.data["username"]).first()
+        if Contributor.objects.filter(user_id=user.id, project_id=project.id).exists():
             return Response(
-                data={"error": "An integrity error occurred!"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": "The user is already a contributor for this project."}, status=status.HTTP_400_BAD_REQUEST
             )
+        try:
+            Contributor.objects.create(user_id=user.id, project_id=project.id)
+            return Response({"message": "Contributor added successfully!"}, status=status.HTTP_201_CREATED)
+        except IntegrityError as e:
+            return Response({"message": f"Erreur d'intégrité : {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         # Récupérer l'ID du projet et de l'utilisateur depuis les paramètres d'URL
         project_id = self.kwargs["projects_pk"]
         user_id = self.kwargs["pk"]
-
-        # Vérifier si l'utilisateur à supprimer est l'utilisateur connecté
-        user_to_delete = Customer.objects.filter(id=user_id).first()
-        if user_to_delete == request.user:
-            return Response(data={"error": "You cannot delete yourself!"}, status=status.HTTP_403_FORBIDDEN)
-
-        if user_to_delete:
-            # Vérifier si l'utilisateur est bien un contributeur dans ce projet
-            contributor = Contributor.objects.filter(user_id=user_id, project_id=project_id).first()
-
-            if contributor:
-                contributor.delete()
-                return Response(
-                    data={"success": "Contributor delete to this project!"}, status=status.HTTP_204_NO_CONTENT
-                )
-            else:
-                return Response(
-                    data={"error": "Contributor not assigned to this project!"}, status=status.HTTP_404_NOT_FOUND
-                )
-        else:
-            return Response(data={"error": "User does not exist!"}, status=status.HTTP_404_NOT_FOUND)
+        contributor = Contributor.objects.filter(user_id=user_id, project_id=project_id).first()
+        if contributor:
+            contributor.delete()
+            return Response(data={"success": "Contributor delete to this project!"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(data={"Error"}, status=status.HTTP_404_NOT_FOUND)

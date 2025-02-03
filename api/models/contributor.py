@@ -9,7 +9,10 @@ class Contributor(models.Model):
     """Classe représentant un contributeur dans un projet"""
 
     user = models.ForeignKey(to=AUTH_USER_MODEL, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="contributors_set")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="contributors")
 
     def __str__(self):
         return f"{self.user} - {self.project.title}"
+
+    class Meta:
+        unique_together = ("project", "user")

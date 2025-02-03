@@ -12,7 +12,7 @@ class Project(models.Model):
     title = models.CharField(max_length=155)
     description = models.CharField(max_length=2048)
     type_development = models.CharField(choices=TYPES, max_length=12)
-
+    created_time = models.DateTimeField(auto_now_add=True)
     # Relation avec l'auteur du projet (un utilisateur)
     author = models.ForeignKey(to=AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="author")
 
