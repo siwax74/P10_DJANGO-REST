@@ -1,7 +1,15 @@
 asgiref==3.8.1
+black==24.10.0
+click==8.1.8
+colorama==0.4.6
 Django==5.1.4
 djangorestframework==3.15.2
 djangorestframework_simplejwt==5.4.0
+drf-nested-routers==0.94.1
+mypy-extensions==1.0.0
+packaging==24.2
+pathspec==0.12.1
+platformdirs==4.3.6
 PyJWT==2.10.1
 sqlparse==0.5.3
 tzdata==2024.2
