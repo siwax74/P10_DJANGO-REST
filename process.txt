@@ -1,144 +1,165 @@
+# API --> Application Programming Interface
+# URL --> Uniform Resource Locator
+# Mixins → Composants réutilisables dans Django REST Framework qui ajoutent des fonctionnalités spécifiques 
+# (comme CreateModelMixin pour la création ou UpdateModelMixin pour la mise à jour) aux ViewSets.
+# ViewSets → Classes regroupant les actions CRUD (list, create, retrieve, update, delete) d’un modèle, 
+# en suivant les conventions REST.
+# Serializers → Classes permettant de convertir des objets Django en JSON et inversement, 
+# tout en validant et structurant les données.
+# ROUTEUR --> Un router est un outil pratique qui simplifie le processus de configuration des URLs pour les ViewSets.
 
-API --> Application Programming Interface
-URL --> Uniform Resource Locator 
-ROUTEUR --> Un router est un outil pratique qui simplifie le processus de configuration des URLs pour les ViewSets.
+# Le router générera automatiquement les URLs suivantes :
 
-Le router générera automatiquement les URLs suivantes :
+# Méthode HTTP    URL                  Action             Description
+# GET            /articles/            list               Liste tous les articles.
+# POST           /articles/            create             Crée un nouvel article.
+# GET            /articles/<id>/       retrieve           Récupère un article spécifique.
+# PUT            /articles/<id>/       update             Met à jour un article (complet).
+# PATCH          /articles/<id>/       partial_update     Met à jour partiellement un article.
+# DELETE         /articles/<id>/       destroy           Supprime un article.
 
-Méthode HTTP	URL	Action	Description
-GET	   /articles/	    list	Liste tous les articles.
-POST   /articles/	    create	Crée un nouvel article.
-GET	   /articles/<id>/	retrieve	Récupère un article spécifique.
-PUT	   /articles/<id>/	update	Met à jour un article (complet).
-PATCH  /articles/<id>/	partial_update	Met à jour partiellement un article.
-DELETE /articles/<id>/	destroy	Supprime un article.
+# ##################### PROJECT ######################
 
-ViewSets --> Un ViewSet est une classe qui regroupe les actions de base (comme list, create, retrieve, update, et delete) pour un modèle ou une ressource, en respectant les conventions REST.
+# mkdir myprojects
+# cd myprojects
+# python -m venv env
+# env\scripts\activate
+# pip install djangorestframework
+# pip install djangorestframework-simplejwt
+# pip install django
 
-##################### PROJECT ######################
+# django-admin startproject backend
+# django-admin startapp api
+# django-admin startapp api_auth
 
-mkdir myprojects
-cd myprojects
-python -m venv env
-env\scripts\activate
-pip install djangorestframework
-pip install djangorestframework-simplejwt
-pip install django
+# ## settings.py ##
 
-django-admin startproject backend
-django-admin startapp api
-django-admin startapp api_auth
+# Ajouter l'application :
+# INSTALLED_APPS = [
+#     'django.contrib.admin',
+#     'django.contrib.auth',
+#     'django.contrib.contenttypes',
+#     'django.contrib.sessions',
+#     'django.contrib.messages',
+#     'django.contrib.staticfiles',
+#     "rest_framework",
 
-## settings.py ##
+#     "api", # ici
+#     "api_auth", # ici
+#     "rest_framework_simplejwt", # ici
+#     "rest_framework_simplejwt.token_blacklist", # ici
+# ]
 
-Ajouter l'application :
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',               <-----
-    'api',                          <-----
-    'api_auth'                      <-----
-]
+# Ajouter
+# SIMPLE_JWT = {
+#     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),  # Durée de vie du token d'accès
+#     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Durée de vie du refresh token
+#     "ROTATE_REFRESH_TOKENS": True,  # Pour renouveler le refresh token
+#     "BLACKLIST_AFTER_ROTATION": True,  # Blacklister les refresh tokens après leur utilisation
+#     "ALGORITHM": "HS256",  # Algorithme utilisé pour signer les tokens
+#     "SIGNING_KEY": SECRET_KEY,  # Clé utilisée pour signer les tokens
+# }
+# pip freeze > requirements.txt
 
-Ajouter
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-}
+# Utilisation des mixins:
 
+# Créer un fichier mixins.py dans le répertoire du dossier de l'api:
 
-pip freeze > requirements.txt
+# def get_serializer_class(self):
+#     if (
+#         self.action == "retrieve"  # Lorsqu'on récupère un objet (GET /objet/{id}/)
+#         or self.action == "create"  # Lorsqu'on crée un objet (POST /objet/)
+#         or self.action == "update"  # Lorsqu'on met à jour un objet (PUT/PATCH /objet/{id}/)
+#         and self.detail_serializer_class is not None  # Si un sérialiseur détaillé est défini
+#     ):
+#         return self.detail_serializer_class  # Utilise le sérialiseur détaillé
+#     return super().get_serializer_class()  # Sinon, utilise le sérialiseur par défaut
 
-Ajout des urls dans :
-# backend/urls.py
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', api_home, name='api-home'),
-    path('api/', include('api.urls')), # exemple : http://127.0.0.1:8000/api/
-    path('api_auth/', include('api_auth.urls')), # exemple : http://127.0.0.1:8000/api_auth/
-]
-# api/view.py
-@api_view(['GET']) # fonction (FBV, Function-Based View) en une vue DRF
-def api_home(request):
-    return Response({
-        "message": "Bienvenue sur l'API SOFTDESK!",
-    })
+# Ajout des urls dans :
+# # backend/urls.py
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('', api_home, name='api-home'),
+#     path('api/', include('api.urls')), # exemple : http://127.0.0.1:8000/api/
+#     path('api_auth/', include('api_auth.urls')), # exemple : http://127.0.0.1:8000/api_auth/
+# ]
 
-Création de fichier urls.py dans :
-# api/urls.py
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from . import views
-app_name = "api"
-router = DefaultRouter()
-urlpatterns = router.urls  # Inclure toutes les routes générées par le router
+# # api/view.py
+# @api_view(['GET']) # fonction (FBV, Function-Based View) en une vue DRF
+# def api_home(request):
+#     return Response({
+#         "message": "Bienvenue sur l'API SOFTDESK!",
+#     })
 
-# api_auth/urls.py
-app_name = "api_auth"
-router = DefaultRouter()
-router.register(r'users', views.CustomerViewSet) <------ Exemple de viewSet
-urlpatterns = [
-    path('', include('rest_framework.urls')),
-] + router.urls
+# Création de fichier urls.py dans :
+# # api/urls.py
+# from django.urls import path, include
+# from rest_framework.routers import DefaultRouter
+# from . import views
+# app_name = "api"
+# router = DefaultRouter()
+# urlpatterns = router.urls  # Inclure toutes les routes générées par le router
 
-## api_auth ##
-- Crée un dossier models
-- Crée un fichier user.py dans :
-    # api_auth/models/user.py
-    class Customer(AbstractUser):
+# # api_auth/urls.py
+# app_name = "api_auth"
+# router = DefaultRouter()
+# router.register(r'users', views.CustomerViewSet)  # Exemple de viewSet
+# urlpatterns = [
+#     path('', include('rest_framework.urls')),
+# ] + router.urls
 
-        username = models.CharField(max_length=10, unique=True)
-        email = models.EmailField(max_length=254, unique=True, null=True, blank=True)
-        is_staff = models.BooleanField(default=False)
-        is_superuser = models.BooleanField(default=False)
-        is_active = models.BooleanField(default=True)
-        USERNAME_FIELD = "username"
-        REQUIRED_FIELDS = []
+# ## api_auth ##
+# - Crée un dossier models
+# - Crée un fichier user.py dans :
+#     # api_auth/models/user.py
+#     class Customer(AbstractUser):
 
-        objects = CustomUserManager()
+#         username = models.CharField(max_length=10, unique=True)
+#         email = models.EmailField(max_length=254, unique=True, null=True, blank=True)
+#         is_staff = models.BooleanField(default=False)
+#         is_superuser = models.BooleanField(default=False)
+#         is_active = models.BooleanField(default=True)
+#         USERNAME_FIELD = "username"
+#         REQUIRED_FIELDS = []
 
-        def __str__(self):
-            """
-            Returns a string representation of the Customer instance.
-            """
-            return self.username
+#         objects = CustomUserManager()
 
-Crée un fichier user_manager.py dans :
-    # api_auth/models/user_manager.py
-    class CustomUserManager(BaseUserManager):
-        def create_user(self, username, password=None, **kwargs):
-            if not username:
-                raise ValueError("Le nom d'utilisateur est obligatoire.")
-            username = self.model.normalize_username(username)
-            user = self.model(username=username, **kwargs)
-            if password:
-                user.set_password(password)
-            user.save()
-            return user
+#         def __str__(self):
+#             """
+#             Returns a string representation of the Customer instance.
+#             """
+#             return self.username
 
-        def create_superuser(self, username, password=None, **kwargs):
-            kwargs["is_staff"] = True
-            kwargs["is_superuser"] = True
-            kwargs["is_active"] = True
-            return self.create_user(username=username, password=password, **kwargs)
+# Crée un fichier user_manager.py dans :
+#     # api_auth/models/user_manager.py
+#     class CustomUserManager(BaseUserManager):
+#         def create_user(self, username, password=None, **kwargs):
+#             if not username:
+#                 raise ValueError("Le nom d'utilisateur est obligatoire.")
+#             username = self.model.normalize_username(username)
+#             user = self.model(username=username, **kwargs)
+#             if password:
+#                 user.set_password(password)
+#             user.save()
+#             return user
 
-    python manage.py makemigration
-    python manage.py migrate
+#         def create_superuser(self, username, password=None, **kwargs):
+#             kwargs["is_staff"] = True
+#             kwargs["is_superuser"] = True
+#             kwargs["is_active"] = True
+#             return self.create_user(username=username, password=password, **kwargs)
 
-    Vous pouvez dès a présent crée :
-        # api_auth/serializer.py
-        class CustomerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Customer
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_active']
+# python manage.py makemigration
+# python manage.py migrate
 
-        # api_auth/views.py
-        class CustomerViewSet(viewsets.ModelViewSet):
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
+# Vous pouvez dès à présent créer :
+#     # api_auth/serializer.py
+#     class CustomerSerializer(serializers.ModelSerializer):
+#         class Meta:
+#             model = Customer
+#             fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_active']
 
+#     # api_auth/views.py
+#     class CustomerViewSet(viewsets.ModelViewSet):
+#         queryset = Customer.objects.all()
+#         serializer_class = CustomerSerializer

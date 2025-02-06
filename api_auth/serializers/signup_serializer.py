@@ -2,45 +2,34 @@ from rest_framework import serializers
 from datetime import date
 from api_auth.models.user import Customer
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.serializers import SerializerMethodField
+from rest_framework.serializers import SerializerMethodField, ValidationError
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 
+User = get_user_model()
 
 class SignupSerializer(serializers.ModelSerializer):
 
-    tokens = SerializerMethodField()  # --> click droit "atteindre les définitions"
+    tokens = SerializerMethodField()
 
     class Meta:
-        model = Customer
-        fields = ["username", "password", "date_of_birth", "can_be_contacted", "can_data_be_shared", "tokens"]
-        extra_kwargs = {"password": {"write_only": True}}
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'tokens']
 
-    def validate_date_of_birth(self, value):
-        today = date.today()
-        age = today.year - value.year - ((today.month, today.day) < (value.month, value.day))
-        if age < 15:
-            raise serializers.ValidationError("Vous devez avoir plus de 15 ans pour vous inscrire.")
+    def validate_email(self, value: str) -> str:
+        if User.objects.filter(email=value).exists():
+            raise ValidationError("User already exists")
         return value
 
-    def create(self, validated_data):
-        # Crée un utilisateur
-        user = Customer.objects.create_user(
-            username=validated_data["username"],
-            password=validated_data["password"],
-            date_of_birth=validated_data["date_of_birth"],
-            can_be_contacted=validated_data["can_be_contacted"],
-            can_data_be_shared=validated_data["can_data_be_shared"],
-        )
-        self.user = user
-        return user
+    def validate_password(self, value: str) -> str:
+        if value is not None:
+            return make_password(value)
+        raise ValidationError("Password is empty")
 
-    def get_tokens(self, user):
-        """Méthode pour obtenir les jetons (tokens) d'authentification pour l'utilisateur"""
-
-        # Générer les jetons à l'aide de Django REST framework simplejwt
+    def get_tokens(self, user: User) -> dict:
         tokens = RefreshToken.for_user(user)
         data = {
-            "refresh": str(tokens),  # Convertir le jeton d'actualisation en chaîne
-            "access": str(tokens.access_token),  # Convertir le jeton d'accès en chaîne
+            "refresh": str(tokens),
+            "access": str(tokens.access_token)
         }
-        # Retourner le dictionnaire contenant les jetons
         return data

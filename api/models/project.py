@@ -1,20 +1,24 @@
 from django.db import models
 from backend.settings import AUTH_USER_MODEL
 
-# Types de projet possibles
-TYPES = [("BACK-END", "BACK-END"), ("FRONT-END", "FRONT-END"), ("IOS", "IOS"), ("ANDROID", "ANDROID")]
-
-
 class Project(models.Model):
-    """Classe représentant un projet"""
 
-    # Champs du projet
+    # Projects Types definition
+    BACKEND = 'BACKEND'
+    FRONTEND = 'FRONTEND'
+    IOS = 'IOS'
+    ANDROID = 'ANDROID'
+    TYPES_CHOICES = (
+        (BACKEND, 'Back-end'),
+        (FRONTEND, 'Front-end'),
+        (IOS, 'iOS'),
+        (ANDROID, 'Android')
+    )
+
     title = models.CharField(max_length=155)
-    description = models.CharField(max_length=2048)
-    type_development = models.CharField(choices=TYPES, max_length=12)
-    created_time = models.DateTimeField(auto_now_add=True)
-    # Relation avec l'auteur du projet (un utilisateur)
-    author = models.ForeignKey(to=AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="author")
-
-    def __str__(self):
-        return self.title
+    description = models.CharField(max_length=5000)
+    type = models.CharField(max_length=12, choices=TYPES_CHOICES)
+    author_user_id = models.ForeignKey(
+        to=AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
