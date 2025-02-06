@@ -1,8 +1,9 @@
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 from api.models.contributor import Contributor
 
 
-class ContributorSerializer(serializers.ModelSerializer):
+class ContributorSerializer(ModelSerializer):
+
     class Meta:
         model = Contributor
-        fields = ["id", "user", "project"]
+        fields = ['id', 'user_id', 'project_id']

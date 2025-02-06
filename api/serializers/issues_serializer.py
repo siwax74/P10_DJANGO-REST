@@ -8,17 +8,7 @@ class IssueListSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = [
-            "id",
-            "created_time",
-            "title",
-            "description",
-            "priority",
-            "issue_type",
-            "status",
-            "project",
-            "assigned_to",
-        ]
+        fields = ['id', 'created_time', 'title', 'priority', 'tag', 'status', 'project_id']
 
 
 class IssueDetailSerializer(ModelSerializer):
@@ -27,19 +17,7 @@ class IssueDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = [
-            "id",
-            "created_time",
-            "title",
-            "description",
-            "priority",
-            "issue_type",
-            "status",
-            "author",
-            "assigned_to",
-            "project",
-            "comments",
-        ]
+        fields = ['id', 'created_time', 'title', 'description', 'priority', 'tag', 'status', 'author_user_id', 'assignee_user_id', 'project_id', 'comments']
 
     def get_comments(self, instance):
         queryset = Comment.objects.filter(issue_id=instance.id)

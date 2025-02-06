@@ -13,7 +13,6 @@ class LogoutView(APIView):
 
         if refresh_token:
             try:
-                # Charger et blacklister le refresh token
                 token = RefreshToken(refresh_token)
                 token.blacklist()
                 return Response({"detail": "Déconnexion réussie, refresh token black-listé."}, status=200)

@@ -5,7 +5,7 @@ from api_auth.models.user_manager import CustomUserManager
 
 class Customer(AbstractUser, PermissionsMixin):
 
-    username = models.CharField(max_length=10, unique=True)
+    username = None
     email = models.EmailField(max_length=254, unique=True, null=True, blank=True)
 
     can_be_contacted = models.BooleanField(default=True)  # Peut être contacté
@@ -15,7 +15,7 @@ class Customer(AbstractUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    USERNAME_FIELD = "username"
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
@@ -27,9 +27,3 @@ class Customer(AbstractUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         """Méthode pour vérifier si l'utilisateur a des permissions pour un module d'application"""
         return True
-
-    def __str__(self):
-        """
-        Returns a string representation of the Customer instance.
-        """
-        return self.username

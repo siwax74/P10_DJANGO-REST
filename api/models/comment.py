@@ -4,12 +4,15 @@ from backend.settings import AUTH_USER_MODEL
 
 
 class Comment(models.Model):
-    """Classe représentant un commentaire pour un problème (issue)"""
-
-    description = models.TextField()
-    issue = models.ForeignKey(to=Issue, on_delete=models.CASCADE, related_name="comments")
-    author = models.ForeignKey(to=AUTH_USER_MODEL, on_delete=models.CASCADE)
+    description = models.CharField(max_length=5000)
     created_time = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Comment by {self.author} on {self.issue.title}"
+    author_user_id = models.ForeignKey(
+        to=AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='comment_author')
+
+    issue_id = models.ForeignKey(
+        to=Issue,
+        on_delete=models.CASCADE,
+        related_name='comments')

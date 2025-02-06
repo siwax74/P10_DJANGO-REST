@@ -4,32 +4,58 @@ from backend.settings import AUTH_USER_MODEL
 
 
 class Issue(models.Model):
-    """Classe représentant un problème dans un projet"""
 
-    LOW = "LOW"
-    MEDIUM = "MEDIUM"
-    HIGH = "HIGH"
-    PRIORITY_CHOICES = [(LOW, "Low"), (MEDIUM, "Medium"), (HIGH, "High")]
+    # Priorities definition
+    LOW = 'LOW'
+    MEDIUM = 'MEDIUM'
+    HIGH = 'HIGH'
+    PRIORITY_CHOICES = (
+        (LOW, 'Low'),
+        (MEDIUM, 'Medium'),
+        (HIGH, 'High')
+    )
 
-    BUG = "BUG"
-    FEATURE = "FEATURE"
-    TASK = "TASK"
-    ISSUE_TYPE_CHOICES = [(BUG, "Bug"), (FEATURE, "Feature"), (TASK, "Task")]
+    # Tags definition
+    BUG = 'BUG'
+    IMPROVEMENT = 'IMPROVEMENT'
+    TASK = 'TASK'
+    TAGS_CHOICES = (
+        (BUG, 'Bug'),
+        (IMPROVEMENT, 'Improvement'),
+        (TASK, 'Task')
+    )
 
-    TODO = "To Do"
-    IN_PROGRESS = "In Progress"
-    FINISHED = "Finished"
-    STATUS_CHOICES = [(TODO, "To Do"), (IN_PROGRESS, "In Progress"), (FINISHED, "Finished")]
+    # Status definition
+    TODO = 'TODO'
+    WIP = 'WIP'
+    DONE = 'DONE'
+    STATUS_CHOICES = (
+        (TODO, 'To-do'),
+        (WIP, 'WIP'),
+        (DONE, 'Done')
+    )
 
-    author = models.ForeignKey(to=AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="issue_author")
+    title = models.CharField(max_length=155)
+    description = models.CharField(max_length=5000)
     created_time = models.DateTimeField(auto_now_add=True)
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default=MEDIUM)
-    issue_type = models.CharField(max_length=10, choices=ISSUE_TYPE_CHOICES, default=TASK)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=TODO)
-    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="issues")
-    assigned_to = models.ForeignKey(to=AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
-    def __str__(self):
-        return self.title
+    priority = models.CharField(max_length=12, choices=PRIORITY_CHOICES)
+    tag = models.CharField(max_length=12, choices=TAGS_CHOICES)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES)
+
+    author_user_id = models.ForeignKey(
+        to=AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='issue_author')
+
+    assignee_user_id = models.ForeignKey(
+        to=AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        blank=True,
+        related_name='issue_assignee')
+
+    project_id = models.ForeignKey(
+        to=Project,
+        on_delete=models.CASCADE,
+        related_name='issues'
+    )

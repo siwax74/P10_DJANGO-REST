@@ -10,6 +10,7 @@ from api.permissions import ProjectPermission
 
 
 class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
+
     """
     Project endpoint.
     Create: Anyone
@@ -23,25 +24,25 @@ class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
     detail_serializer_class = ProjectDetailSerializer
 
     def get_queryset(self):
-        project_ids = Contributor.objects.filter(user_id=self.request.user).values_list("project_id", flat=True)
-        if project_ids:
-            return Project.objects.filter(id__in=project_ids)
-        return Project.objects.all()
+        projects_ids = [contributor.project_id.id for contributor in Contributor.objects.filter(user_id=self.request.user).all()]
+        return Project.objects.filter(id__in=projects_ids)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         request.POST._mutable = True
-        request.data["author"] = request.user.pk
+        request.data["author_user_id"] = request.user.pk
         request.POST._mutable = False
         project = super(ProjectViewset, self).create(request, *args, **kwargs)
-        project_id = project.data.get("id")
-        contributor = Contributor.objects.create(user_id=request.user.pk, project_id=project_id)
+        contributor = Contributor.objects.create(
+            user_id=request.user,
+            project_id=Project.objects.filter(id=project.data['id']).first()
+        )
         contributor.save()
         return Response(project.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
         request.POST._mutable = True
-        request.data["author"] = request.user.pk
+        request.data["author_user_id"] = request.user.pk
         request.POST._mutable = False
         return super(ProjectViewset, self).update(request, *args, **kwargs)
 
