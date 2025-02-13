@@ -55,7 +55,7 @@ Pour installer SofDesk, suivez ces étapes :
    [http://localhost:8000](http://localhost:8000)
 
 2. **Créer un compte utilisateur** :
-   - [http://localhost:8000/api/auth/login/](http://localhost:8000/api/auth/login/)
+   - [http://localhost:8000/api/auth/login/](http://localhost:8000/api/auth/signup/)
 
 3. **Se connecter** :
    - [http://localhost:8000/api/auth/login/](http://localhost:8000/api/auth/login/)
