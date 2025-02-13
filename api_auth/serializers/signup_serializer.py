@@ -1,6 +1,4 @@
 from rest_framework import serializers
-from datetime import date
-from api_auth.models.user import Customer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.serializers import SerializerMethodField, ValidationError
 from django.contrib.auth import get_user_model
@@ -8,13 +6,14 @@ from django.contrib.auth.hashers import make_password
 
 User = get_user_model()
 
+
 class SignupSerializer(serializers.ModelSerializer):
 
     tokens = SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'tokens']
+        fields = ["id", "first_name", "last_name", "email", "password", "tokens"]
 
     def validate_email(self, value: str) -> str:
         if User.objects.filter(email=value).exists():
@@ -28,8 +27,5 @@ class SignupSerializer(serializers.ModelSerializer):
 
     def get_tokens(self, user: User) -> dict:
         tokens = RefreshToken.for_user(user)
-        data = {
-            "refresh": str(tokens),
-            "access": str(tokens.access_token)
-        }
+        data = {"refresh": str(tokens), "access": str(tokens.access_token)}
         return data

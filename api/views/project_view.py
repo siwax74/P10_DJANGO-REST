@@ -10,7 +10,6 @@ from api.permissions import ProjectPermission
 
 
 class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
-
     """
     Project endpoint.
     Create: Anyone
@@ -24,7 +23,9 @@ class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
     detail_serializer_class = ProjectDetailSerializer
 
     def get_queryset(self):
-        projects_ids = [contributor.project_id.id for contributor in Contributor.objects.filter(user_id=self.request.user).all()]
+        projects_ids = [
+            contributor.project_id.id for contributor in Contributor.objects.filter(user_id=self.request.user).all()
+        ]
         return Project.objects.filter(id__in=projects_ids)
 
     @transaction.atomic
@@ -34,8 +35,7 @@ class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
         request.POST._mutable = False
         project = super(ProjectViewset, self).create(request, *args, **kwargs)
         contributor = Contributor.objects.create(
-            user_id=request.user,
-            project_id=Project.objects.filter(id=project.data['id']).first()
+            user_id=request.user, project_id=Project.objects.filter(id=project.data["id"]).first()
         )
         contributor.save()
         return Response(project.data, status=status.HTTP_201_CREATED)

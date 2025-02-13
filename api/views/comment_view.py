@@ -25,7 +25,7 @@ class CommentViewset(GetDetailSerializerClassMixin, ModelViewSet):
     def create(self, request, *args, **kwargs):
         print("create")
         request.POST._mutable = True
-        request.data["author"] = request.user.pk
+        request.data["author_user_id"] = request.user.pk
         request.data["issue"] = self.kwargs["issues_pk"]
         request.POST._mutable = False
         return super(CommentViewset, self).create(request, *args, **kwargs)
@@ -33,7 +33,7 @@ class CommentViewset(GetDetailSerializerClassMixin, ModelViewSet):
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         request.POST._mutable = True
-        request.data["author"] = request.user.pk
+        request.data["author_user_id"] = request.user.pk
         request.data["issue_id"] = self.kwargs["issues_pk"]
         request.POST._mutable = False
         return super(CommentViewset, self).update(request, *args, **kwargs)

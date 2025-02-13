@@ -135,9 +135,9 @@ PASSWORD = "test1"
 AUTH_USER_MODEL = "api_auth.Customer"
 
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "PAGE_SIZE": 10,
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -145,7 +145,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),  # Durée de vie du token d'accès
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),  # Durée de vie du token d'accès
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Durée de vie du refresh token
     "ROTATE_REFRESH_TOKENS": True,  # Pour renouveler le refresh token
     "BLACKLIST_AFTER_ROTATION": True,  # Blacklister les refresh tokens après leur utilisation

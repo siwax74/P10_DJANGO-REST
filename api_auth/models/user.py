@@ -10,7 +10,7 @@ class Customer(AbstractUser, PermissionsMixin):
 
     can_be_contacted = models.BooleanField(default=True)  # Peut être contacté
     can_data_be_shared = models.BooleanField(default=False)  # Peut-on partager ses données
-    date_of_birth = models.DateField(null=True, blank=True)  # Pour vérifier l'âge
+    date_of_birth = models.DateField(null=True, blank=True)
 
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

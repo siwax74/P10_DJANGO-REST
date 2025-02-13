@@ -8,7 +8,7 @@ class ProjectListSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'type', 'author_user_id']
+        fields = ["id", "title", "type", "author_user_id"]
 
 
 class ProjectDetailSerializer(ModelSerializer):
@@ -17,7 +17,7 @@ class ProjectDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type', 'author_user_id', 'issues']
+        fields = ["id", "title", "description", "type", "author_user_id", "issues"]
 
     def get_issues(self, instance):
         queryset = Issue.objects.filter(project_id=instance.id)

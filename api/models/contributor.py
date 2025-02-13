@@ -11,4 +11,4 @@ class Contributor(models.Model):
     project_id = models.ForeignKey(to=Project, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('project_id', 'user_id')
+        unique_together = ("project_id", "user_id")
