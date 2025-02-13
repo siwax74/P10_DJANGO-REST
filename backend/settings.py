@@ -145,7 +145,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),  # Durée de vie du token d'accès
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),  # Durée de vie du token d'accès
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Durée de vie du refresh token
     "ROTATE_REFRESH_TOKENS": True,  # Pour renouveler le refresh token
     "BLACKLIST_AFTER_ROTATION": True,  # Blacklister les refresh tokens après leur utilisation

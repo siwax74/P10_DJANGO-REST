@@ -3,6 +3,8 @@ from api.models import Project, Contributor
 
 
 def check_contributor(user, project):
+    if not project:
+        return False
     for contributor in Contributor.objects.filter(project_id=project.id):
         if user == contributor.user_id:
             return True
